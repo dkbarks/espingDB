@@ -64,19 +64,9 @@ def Paso3_Dependencia_refundande(L):
     LE = []
     idxMalos = []
     for i in range(0, len(L)):
-        l = L[i]
-        #se clona L
-        L2 = L[:]
-        #se quita el elemento a analizar
-        del L2[i]
-        for im in idxMalos:
-            del L2[im]
-        cierre = cierreUnDescriptor(l[0], L2)
-        print l[0], l[1], cierre,
-        Y = set(l[1])
-        if len(cierre.intersection(Y)) == 0:
-            print "1"
-            LE.append(l)
+        esta = estaEnCierreUnDescriptor(L, i, idxMalos)
+        if not esta:
+            LE.append(L[i])
         else:
             idxMalos.append(i)
             idxMalos.sort(reverse =True)
@@ -134,6 +124,36 @@ def cierreUnDescriptor (x, L):
         t = len(salida.difference(ultimaSalida)) > 0
         ultimaSalida = salida
     return salida
+
+'''
+Hace al algoritmo de cierre de un descriptor, pero se detiene si
+el valor pasado se encuantra en la salida del algoritmo
+'''
+def estaEnCierreUnDescriptor (L, i, idxMalos):
+    t=True
+    x = L[i][0]
+    value = L[i][1]
+#    salida = set()
+    ultimaSalida = set();
+    salida = set(list(x))
+    while t:
+        idx = 0;
+        for df in L:
+            if idx == i or idx in idxMalos:
+                idx = idx + 1
+                continue;
+            idx = idx + 1
+            sdf = set(list(df[0]))
+            lee = len(salida.intersection(sdf))
+            #print salida, sdf, df, lee
+            if lee >= 0 and len(df[0]) <= lee:
+                salida = salida.union(set(df[1]))  
+        #print "s", salida
+        if len(salida.intersection(value)) > 0:
+            return True
+        t = len(salida.difference(ultimaSalida)) > 0
+        ultimaSalida = salida
+    return False
 """
 x: es un lista de los elementos del determinante. ej: si es ab -> cd, ['a','b']
 y: es una lista de los elementos del determinado. ej: si es ab -> cd, ['c','d']
