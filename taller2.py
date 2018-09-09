@@ -2,6 +2,7 @@
 """
 Created on Sat Sep  8 12:39:38 2018
 
+@author: Gustavo Realpe
 """
 import os
 import json
@@ -51,7 +52,7 @@ def Paso2_Atributos_extranos(L, informe):
         #while reint:
             #reint = False
         [esContenido, cont] = esExtrano(l,cierres, L)
-        print esContenido, cont
+        #print esContenido, cont
             #if esContenido:
                 
         #si ninguno de las dos dependencias en su cierre contiene a Y, se dice
@@ -68,6 +69,9 @@ def Paso2_Atributos_extranos(L, informe):
                     informe.append("Se encuentra un elemento extraño en {}->{} y se transforma en {}->{} ".format(",".join(l[0]),",".join(l[1]), ",".join(lt[0]),",".join(lt[1])))
                     LE.append(lt)
                     break
+                else:
+                    informe.append("Se encuentra un elemento extraño en {}->{} y se transforma en {}->{} * pero no se tiene en cuenta por que ya esxiste la DF ".format(",".join(l[0]),",".join(l[1]), ",".join(lt[0]),",".join(lt[1])))
+
     
     if len(informe) == 1:
         informe.append("  * No se realizaron cambios")
@@ -92,7 +96,7 @@ def Paso3_Dependencia_refundande(L, informe):
             informe.append("se elimina {}->{}".format(",".join(L[i][0]), ",".join(L[i][1])))
             idxMalos.append(i)
             idxMalos.sort(reverse =True)
-            print "2"
+            #print "2"
     return LE
     
 
@@ -105,7 +109,7 @@ def esExtrano(l, cierres, L):
         extrano = l[0][i]
         ca = X.difference(extrano)            
         Xi = ",".join(sorted(ca))
-        print Xi
+        #print Xi
         #si el cierre ya fual calculado, lo utiliza
         if Xi in cierres:
             cierre = cierres[Xi]
@@ -113,7 +117,7 @@ def esExtrano(l, cierres, L):
         else:
             cierre = cierreUnDescriptor(Xi, L)
             cierres[Xi] = cierre
-        print cierre
+        #print cierre
         #revisa si el cierre contiene Y
         cont[Xi] = len(cierre.intersection(Y)) > 0
         if(cont[Xi]):
@@ -238,12 +242,13 @@ def cargar_datos():
     L1= Paso1_convertirDF2Elementales(L, informe1)
     L2 = Paso2_Atributos_extranos(L1, informe2)
     L3 = Paso3_Dependencia_refundande(L2, informe3)
+    print "----------L1-----------"
     imprimirL(L1)
-    print "---------------------"
+    print "----------L2-----------"
     imprimirL(L2)
-    print "---------------------"
+    print "----------L3-----------"
     imprimirL(L3)
-    print "---------------------"
+    print "----------INFOMES-----------"
     imprimir(informe1)
     imprimir(informe2)
     imprimir(informe3)
@@ -283,12 +288,13 @@ def prueba():
     L1= Paso1_convertirDF2Elementales(L, informe1)
     L2 = Paso2_Atributos_extranos(L1, informe2)
     L3 = Paso3_Dependencia_refundande(L2, informe3)
+    print "----------L1-----------"
     imprimirL(L1)
-    print "---------------------"
+    print "----------L2-----------"
     imprimirL(L2)
-    print "---------------------"
+    print "----------L3-----------"
     imprimirL(L3)
-    print "---------------------"
+    print "----------INFOMES-----------"
     imprimir(informe1)
     imprimir(informe2)
     imprimir(informe3)
