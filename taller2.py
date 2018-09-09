@@ -2,26 +2,43 @@
 """
 Created on Sat Sep  8 12:39:38 2018
 
-@author: Gustavo Realpe
 """
+import os
+import json
+import sys
+from itertools import combinations
 
-def Paso1_convertirDF2Elementales(L):
+ruta = 'files'
+
+
+def Paso1_convertirDF2Elementales(L, informe):
     LE = []
+    informe.append("----Paso1---- \n\r")
     for l in L:
         #si el determinado es de longitud 1 y no es trivial, se deja
         if len(l[1]) == 1:
             if not esTrivial(l[0], l[1]):
                 LE.append(l)
                 continue
-            continue
+            else:
+                informe.append("Se elimina {}->{} por que es trivial".format(",".join(l[0]), ",".join(l[1])))
+                continue        
+        informe.append("Se tranforma {}->{} en elementales".format(",".join(l[0]), ",".join(l[1])))
         for y in l[1]:
             if not esTrivial(l[0], y):
-                LE.append([l[0], [y]])       
+                LE.append([l[0], [y]])
+                #informe.append(" {}->{}, ".format(l[0], y))
+            else:
+                informe.append(" * Se elimina {}->{} por que es trivial *".format(",".join(l[0]), ",".join(l[1])))
+    if len(informe) == 1:
+        informe.append("  * No se realizaron cambios")
+                
     return LE
 
-def Paso2_Atributos_extranos(L):
+def Paso2_Atributos_extranos(L, informe):
     LE = []
     cierres=dict()
+    informe.append("----Paso2---- \n\r")
     for l in L:
         lon = len(l[0])
         # si al longitud de X es 1 nos hay elementos extraños
@@ -33,7 +50,7 @@ def Paso2_Atributos_extranos(L):
         #reint = True
         #while reint:
             #reint = False
-        [esContenido, cont] = esExtrano(l,cierres)
+        [esContenido, cont] = esExtrano(l,cierres, L)
         print esContenido, cont
             #if esContenido:
                 
@@ -48,9 +65,12 @@ def Paso2_Atributos_extranos(L):
             if cont[c]:
                 lt =[c.split(","), l[1]]
                 if not existeEnLista(lt, LE):
+                    informe.append("Se encuentra un elemento extraño en {}->{} y se transforma en {}->{} ".format(",".join(l[0]),",".join(l[1]), ",".join(lt[0]),",".join(lt[1])))
                     LE.append(lt)
+                    break
     
-    
+    if len(informe) == 1:
+        informe.append("  * No se realizaron cambios")
     return LE
 
 def existeEnLista(l,LE):
@@ -60,21 +80,23 @@ def existeEnLista(l,LE):
     return False
             
 
-def Paso3_Dependencia_refundande(L):
+def Paso3_Dependencia_refundande(L, informe):
     LE = []
     idxMalos = []
+    informe.append("----Paso3---- \n\r")
     for i in range(0, len(L)):
         esta = estaEnCierreUnDescriptor(L, i, idxMalos)
         if not esta:
             LE.append(L[i])
         else:
+            informe.append("se elimina {}->{}".format(",".join(L[i][0]), ",".join(L[i][1])))
             idxMalos.append(i)
             idxMalos.sort(reverse =True)
             print "2"
     return LE
     
 
-def esExtrano(l, cierres):
+def esExtrano(l, cierres, L):
     cont = dict()
     esContenido = False
     Y = set(l[1])
@@ -91,6 +113,7 @@ def esExtrano(l, cierres):
         else:
             cierre = cierreUnDescriptor(Xi, L)
             cierres[Xi] = cierre
+        print cierre
         #revisa si el cierre contiene Y
         cont[Xi] = len(cierre.intersection(Y)) > 0
         if(cont[Xi]):
@@ -189,27 +212,87 @@ def imprimirL(L):
     for i in L:
         print(','.join(i[0]) + " -> "+ ''.join(i[1]))
 
-#T = ["A","B","C","D","E","F"]
-#L = [[["A"],["B","D"]], [["C"],["F"]],[["F"],["A"]],[["C", "D"],["A"]],[["A", "C", "D"],["E"]] ]
-T = ["A","B","C","D","E","F"]
-L = [[["A", "B"],["C"]], 
-     [["D"],["E"]],
-     [["D"],["F"]],
+def imprimir(ii):
+    for i in ii:
+        print(i)
+
+'''
+Carga los datos de un archivo ejecuta el cierre
+'''
+def cargar_datos():
+    T=[]
+    L=[]
+    dirname = os.path.dirname(__file__)
+    filename = os.path.join(dirname, ruta, 'import.json')
+    with open(filename) as file:
+        resf = json.load(file)
+        T = resf["T"]
+        LO = resf["L"]
+    for l in LO:
+        L.append([l["X"], l["Y"]])
+    
+    validacionDeDatos(T, L)
+    informe1=[]
+    informe2=[]
+    informe3=[]
+    L1= Paso1_convertirDF2Elementales(L, informe1)
+    L2 = Paso2_Atributos_extranos(L1, informe2)
+    L3 = Paso3_Dependencia_refundande(L2, informe3)
+    imprimirL(L1)
+    print "---------------------"
+    imprimirL(L2)
+    print "---------------------"
+    imprimirL(L3)
+    print "---------------------"
+    imprimir(informe1)
+    imprimir(informe2)
+    imprimir(informe3)
+
+'''
+Valida que los valores ingresados en la DF esten en los atributos definidos
+'''
+def validacionDeDatos(T, L):
+    #valida que los atributos de la dependencia funcional esten dentro de los
+    #atributos de T
+    for l in L:        
+        for x in l[0]:
+            if x not in T:
+                sys.exit("{} no está en los atributos T".format(x))
+        for y in l[1]:
+            if y not in T:
+                sys.exit("{} no está en los atributos T".format(y))
+
+def prueba():
+    '''
+    T = ["A","B","C","D","E","F"]
+    L = [[["A"],["B","D"]], [["C"],["F"]],[["F"],["A"]],[["C", "D"],["A"]],[["A", "C"],["E"]] ]
+    '''
+    T = ["A","B","C","D","E","F"]
+    L = [[["A", "B"],["C"]], 
+     [["D"],["E", "F"]],
      [["C"],["A"]],
      [["B","E"],["C"]],
      [["B","C"],["D"]],
-     [["C","F"],["B"]],
-     [["C","F"],["D"]],
+     [["C","F"],["B", "D"]],
      [["A", "C", "D"],["B"]],
-     [["C","E"],["A"]],
-     [["C","E"],["F"]]
+     [["C","E"],["A", "F"]]
      ]
+    informe1=[]
+    informe2=[]
+    informe3=[]    
+    L1= Paso1_convertirDF2Elementales(L, informe1)
+    L2 = Paso2_Atributos_extranos(L1, informe2)
+    L3 = Paso3_Dependencia_refundande(L2, informe3)
+    imprimirL(L1)
+    print "---------------------"
+    imprimirL(L2)
+    print "---------------------"
+    imprimirL(L3)
+    print "---------------------"
+    imprimir(informe1)
+    imprimir(informe2)
+    imprimir(informe3)
 
-L1= Paso1_convertirDF2Elementales(L)
-L2 = Paso2_Atributos_extranos(L1)
-L3 = Paso3_Dependencia_refundande(L2)
-imprimirL(L1)
-print "---------------------"
-imprimirL(L2)
-print "---------------------"
-imprimirL(L3)
+prueba()
+#cargar_datos()
+
