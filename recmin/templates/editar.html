@@ -1,0 +1,50 @@
+<html>
+<head>
+  <title>ESPING - BD</title>
+  <style>
+    h1 {
+      font-size: 2em;
+      font-weight: bold;
+      color: #777777;
+      text-align: center
+    }
+    p {
+      text-align: center
+    }
+    table {
+      margin: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>
+      EDITAR RECUBRIMIENTO MINIMO
+  </h1>
+  <p>Edite los atributos, y dependencias segun su preferencia</p>
+  <table>
+    <tr>
+      <td>
+        <form action="/recmin/minimun/" method="POST" >
+          {% csrf_token %}
+          ATRIBUTOS
+          <textarea rows="10" cols="150" id="atrib" name="atrib">
+                {{ atributos }}           
+          </textarea>
+          <br />
+          <br />
+          DEPENDENCIAS
+          <textarea rows="15" cols="150" id="dep" name="dep">
+                {{ dependencias }}           
+          </textarea>
+          <br />
+          <br />
+          <input type="submit" value="CALCULAR" />
+        </form>
+      </td>
+    </tr>
+  </table>
+
+</body>
+
+</html>
