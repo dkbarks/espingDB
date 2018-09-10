@@ -43,11 +43,11 @@ def minimun(request):
         a=str(x['atrib']).replace('u','').strip()
         d=str(x['dep']).replace('u','').strip()
         result = cargar_datos(a,d)
-        generar_json('* Primer paso: '+str(result[0])+'* Segundo paso: '+str(result[1])+'* Tercer paso:'+str(result[2]))
+        generar_json('* Recubrimiento Minimo: '+str(result[2]))
         return render(request, 'resultados.html', {'info1': result[3],'info2': result[4],'info3': result[5]})
 
 def generar_json(data):
-    filePathNameWExt = 'up\cierre.txt'
+    filePathNameWExt = 'up\cierre.json'
     with open(filePathNameWExt, 'w') as fp:
         fp.write(data)
         fp.close()
