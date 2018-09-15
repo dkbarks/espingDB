@@ -48,12 +48,26 @@ def Paso2_Atributos_extranos(L, informe):
                 LE.append(l)
             continue
         
-        #reint = True
-        #while reint:
-            #reint = False
-        [esContenido, cont] = esExtrano(l,cierres, L)
-        #print esContenido, cont
-            #if esContenido:
+        reint = True
+        lt = l
+        while reint:
+            reint = False
+            [esContenido, cont] = esExtrano(lt,cierres, L)
+            #print 'aqui',esContenido, cont
+            # se pregunta si hay que seguir iterando y preguntandp por elemntos extraños
+            if esContenido:
+                for c in cont:
+                    if cont[c]:
+                        xx = c.split(",")
+                        if len(xx) > 1:
+                            informe.append("Se encuentra un elemento extraño en {}->{} y se transforma en {}->{} ".format(",".join(lt[0]),",".join(lt[1]), ",".join(xx),",".join(l[1])))
+                            #print ("Se encuentra un elemento extraño en {}->{} y se transforma en {}->{} ".format(",".join(lt[0]),",".join(lt[1]), ",".join(xx),",".join(l[1])))
+                            lt =[xx, l[1]]
+                            reint  =True
+                            #print 'reint'
+                        break
+            else:
+                l = lt
                 
         #si ninguno de las dos dependencias en su cierre contiene a Y, se dice
         # que no tiene elementos extraños
@@ -67,10 +81,12 @@ def Paso2_Atributos_extranos(L, informe):
                 lt =[c.split(","), l[1]]
                 if not existeEnLista(lt, LE):
                     informe.append("Se encuentra un elemento extraño en {}->{} y se transforma en {}->{} ".format(",".join(l[0]),",".join(l[1]), ",".join(lt[0]),",".join(lt[1])))
+                    #print ("Se encuentra un elemento extraño en {}->{} y se transforma en {}->{} ".format(",".join(l[0]),",".join(l[1]), ",".join(lt[0]),",".join(lt[1])))
                     LE.append(lt)
                     break
                 else:
                     informe.append("Se encuentra un elemento extraño en {}->{} y se transforma en {}->{} * pero no se tiene en cuenta por que ya esxiste la DF ".format(",".join(l[0]),",".join(l[1]), ",".join(lt[0]),",".join(lt[1])))
+                    #print("Se encuentra un elemento extraño en {}->{} y se transforma en {}->{} * pero no se tiene en cuenta por que ya esxiste la DF ".format(",".join(l[0]),",".join(l[1]), ",".join(lt[0]),",".join(lt[1])))
 
     
     if len(informe) == 1:
