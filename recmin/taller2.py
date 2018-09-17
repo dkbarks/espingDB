@@ -220,9 +220,39 @@ def imprimir(ii):
         print(i)
 
 '''
+Carga los datos de un archivo ejecuta el cierre 
+* Modificado 
+'''
+def cargar_datos(atri,dep):
+    T=eval(atri)
+    L=[]
+    LO = eval(dep)
+    for l in LO:
+        L.append([l["X"], l["Y"]])
+    
+    validacionDeDatos(T, L)
+    informe1=[]
+    informe2=[]
+    informe3=[]
+    L1= Paso1_convertirDF2Elementales(L, informe1)
+    L2 = Paso2_Atributos_extranos(L1, informe2)
+    L3 = Paso3_Dependencia_refundande(L2, informe3)
+    #print "----------L1-----------"
+    #imprimirL(L1)
+    #print "----------L2-----------"
+    #imprimirL(L2)
+    #print "----------L3-----------"
+    #imprimirL(L3)
+    #print "----------INFOMES-----------"
+    #imprimir(informe1)
+    #imprimir(informe2)
+    #imprimir(informe3)
+    return [L1,L2,L3,informe1,informe2,informe3]
+
+'''
 Carga los datos de un archivo ejecuta el cierre
 '''
-def cargar_datos():
+def cargar_datos2():
     T=[]
     L=[]
     dirname = os.path.dirname(__file__)
@@ -241,13 +271,13 @@ def cargar_datos():
     L1= Paso1_convertirDF2Elementales(L, informe1)
     L2 = Paso2_Atributos_extranos(L1, informe2)
     L3 = Paso3_Dependencia_refundande(L2, informe3)
-    print "----------L1-----------"
+    print ("----------L1-----------")
     imprimirL(L1)
-    print "----------L2-----------"
+    print ("----------L2-----------")
     imprimirL(L2)
-    print "----------L3-----------"
+    print ("----------L3-----------")
     imprimirL(L3)
-    print "----------INFOMES-----------"
+    print ("----------INFOMES-----------")
     imprimir(informe1)
     imprimir(informe2)
     imprimir(informe3)
@@ -299,17 +329,17 @@ def prueba():
     L1= Paso1_convertirDF2Elementales(L, informe1)
     L2 = Paso2_Atributos_extranos(L1, informe2)
     L3 = Paso3_Dependencia_refundande(L2, informe3)
-    print "----------L1-----------"
+    print ("----------L1-----------")
     imprimirL(L1)
-    print "----------L2-----------"
+    print ("----------L2-----------")
     imprimirL(L2)
-    print "----------L3-----------"
+    print ("----------L3-----------")
     imprimirL(L3)
-    print "----------INFOMES-----------"
+    print ("----------INFOMES-----------")
     imprimir(informe1)
     imprimir(informe2)
     imprimir(informe3)
 
-prueba()
+#prueba()
 #cargar_datos()
 
