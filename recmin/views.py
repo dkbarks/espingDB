@@ -44,6 +44,7 @@ def minimun(request):
         a=str(x['atrib']).replace('u','').strip()
         d=str(x['dep']).replace('u','').strip()
         result = cargar_datos(a,d)
+<<<<<<< HEAD
         llave = calculaLlaves(a,d)
         generar_json('* Informe primer paso:'+str(result[3])+'* Primer paso: '+str(result[0])+'* Informe segundo paso:'+str(result[4])+'* Segundo paso: '+str(result[1])+'* Informe tercer paso:'+str(result[0])+'* Tercer paso:'+str(result[2]))
         generar_json_llaves('Z :'+str(llave[2])+'Z+ :'+str(llave[3])+'W :'+str(llave[4])+'V :'+str(llave[5]))
@@ -51,6 +52,13 @@ def minimun(request):
 
 def generar_json(data):
     filePathNameWExt = 'up\cierre.csv'
+=======
+        generar_json('* Recubrimiento Minimo: '+str(result[2]))
+        return render(request, 'resultados.html', {'info1': result[3],'info2': result[4],'info3': result[5]})
+
+def generar_json(data):
+    filePathNameWExt = 'up\cierre.json'
+>>>>>>> 53b0d069511f61b6c05a370733f2c2e7390647f4
     with open(filePathNameWExt, 'w') as fp:
         fp.write(data)
         fp.close()

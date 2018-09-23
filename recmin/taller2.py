@@ -7,8 +7,6 @@ Created on Sat Sep  8 12:39:38 2018
 import os
 import json
 import sys
-from itertools import combinations
-
 ruta = 'files'
 
 
@@ -30,7 +28,12 @@ def Paso1_convertirDF2Elementales(L, informe):
                 LE.append([l[0], [y]])
                 #informe.append(" {}->{}, ".format(l[0], y))
             else:
-                informe.append(" * Se elimina {}->{} por que es trivial *".format(",".join(l[0]), ",".join(l[1])))
+                [xs,ys,pudo] = corrigeTrivial(l[0], y)
+                if not pudo:
+                    informe.append(" * Se elimina {}->{} por que es trivial *".format(",".join(l[0]), ",".join(l[1])))
+                else:
+                    informe.append(" * Se vuelve elemental {}->{} por que es trivial *".format(",".join(l[0]), ",".join(l[1])))
+                    LE.append([sorted(xs), sorted(ys)])
     if len(informe) == 1:
         informe.append("  * No se realizaron cambios")
                 
@@ -48,12 +51,26 @@ def Paso2_Atributos_extranos(L, informe):
                 LE.append(l)
             continue
         
-        #reint = True
-        #while reint:
-            #reint = False
-        [esContenido, cont] = esExtrano(l,cierres, L)
-        #print esContenido, cont
-            #if esContenido:
+        reint = True
+        lt = l
+        while reint:
+            reint = False
+            [esContenido, cont] = esExtrano(lt,cierres, L)
+            #print 'aqui',esContenido, cont
+            # se pregunta si hay que seguir iterando y preguntandp por elemntos extraños
+            if esContenido:
+                for c in cont:
+                    if cont[c]:
+                        xx = c.split(",")
+                        if len(xx) > 1:
+                            informe.append("Se encuentra un elemento extraño en {}->{} y se transforma en {}->{} ".format(",".join(lt[0]),",".join(lt[1]), ",".join(xx),",".join(l[1])))
+                            #print ("Se encuentra un elemento extraño en {}->{} y se transforma en {}->{} ".format(",".join(lt[0]),",".join(lt[1]), ",".join(xx),",".join(l[1])))
+                            lt =[xx, l[1]]
+                            reint  =True
+                            #print 'reint'
+                        break
+            else:
+                l = lt
                 
         #si ninguno de las dos dependencias en su cierre contiene a Y, se dice
         # que no tiene elementos extraños
@@ -67,23 +84,18 @@ def Paso2_Atributos_extranos(L, informe):
                 lt =[c.split(","), l[1]]
                 if not existeEnLista(lt, LE):
                     informe.append("Se encuentra un elemento extraño en {}->{} y se transforma en {}->{} ".format(",".join(l[0]),",".join(l[1]), ",".join(lt[0]),",".join(lt[1])))
+                    print ("Se encuentra un elemento extraño en {}->{} y se transforma en {}->{} ".format(",".join(l[0]),",".join(l[1]), ",".join(lt[0]),",".join(lt[1])))
                     LE.append(lt)
                     break
                 else:
                     informe.append("Se encuentra un elemento extraño en {}->{} y se transforma en {}->{} * pero no se tiene en cuenta por que ya esxiste la DF ".format(",".join(l[0]),",".join(l[1]), ",".join(lt[0]),",".join(lt[1])))
+                    print("Se encuentra un elemento extraño en {}->{} y se transforma en {}->{} * pero no se tiene en cuenta por que ya esxiste la DF ".format(",".join(l[0]),",".join(l[1]), ",".join(lt[0]),",".join(lt[1])))
 
     
     if len(informe) == 1:
         informe.append("  * No se realizaron cambios")
     return LE
-
-def existeEnLista(l,LE):
-    for ll in LE:
-        if set(ll[0]) == set(l[0]) and set(ll[1]) == set(l[1]):
-            return True
-    return False
-            
-
+           
 def Paso3_Dependencia_refundande(L, informe):
     LE = []
     idxMalos = []
@@ -124,17 +136,6 @@ def esExtrano(l, cierres, L):
             esContenido = True
     return [esContenido, cont]
 
-'''
-Genera las posibles combiannciones de un arreglo tu
-'''
-def generarCombinaciones(tu):
-    comb = tuple(tu)
-    for i in range(2,len(tu)+1):
-        cc = combinations(tu,i)    
-        for c in cc:
-            comb = comb + (c,) 
-    return comb
-        
 def cierreUnDescriptor (x, L):
     t=True
 #    salida = set()
@@ -180,23 +181,7 @@ def estaEnCierreUnDescriptor (L, i, idxMalos):
             return True
         t = len(salida.difference(ultimaSalida)) > 0
         ultimaSalida = salida
-    return False
-"""
-x: es un lista de los elementos del determinante. ej: si es ab -> cd, ['a','b']
-y: es una lista de los elementos del determinado. ej: si es ab -> cd, ['c','d']
-return: true si es DFE, false si no es DFE
-"""
-def esElemental(x,y):
-    # si la longitud del implicado es diferente de 1 no es DFE
-    if(len(y) > 1):
-        print("{} -> {} no es DFE".format(''.join(x), ''.join(y)))
-        return False
-        
-    if esTrivial(x,y):
-        return False
-    
-    print("{} -> {} es DFE".format(''.join(x), ''.join(y)))
-    return True    
+    return False   
 
 def esTrivial(x,y):
     s = set(x)
@@ -204,10 +189,24 @@ def esTrivial(x,y):
     inter = s.intersection(t)
     # si existe un elemento de x en y, se dice que no es DFE
     if(len(inter) > 0):
-        print("{} -> {} no es DFE por que {} es un subconjunto de {}".format(''.join(x), ''.join(y), ''.join(y),''.join(x)))
+        #print inter
+        #print("{} -> {} no es DFE por que {} es un subconjunto de {}".format(''.join(x), ''.join(y), ''.join(y),''.join(x)))
         return True
     return False
 
+def corrigeTrivial(x,y):
+    s = set(x)
+    t = set(y) 
+    inter = s.intersection(t)
+    s = s.difference(inter)
+    pudo  = len(s) > 0
+    return [s,t, pudo]
+
+def existeEnLista(l,LE):
+    for ll in LE:
+        if set(ll[0]) == set(l[0]) and set(ll[1]) == set(l[1]):
+            return True
+    return False
 
 '''
 Imprime el cierre en lformato X -> Y
@@ -220,39 +219,6 @@ def imprimir(ii):
     for i in ii:
         print(i)
 
-'''
-Carga los datos de un archivo ejecuta el cierre
-'''
-def cargar_datos():
-    T=[]
-    L=[]
-    dirname = os.path.dirname(__file__)
-    filename = os.path.join(dirname, ruta, 'import.json')
-    with open(filename) as file:
-        resf = json.load(file)
-        T = resf["T"]
-        LO = resf["L"]
-    for l in LO:
-        L.append([l["X"], l["Y"]])
-    
-    validacionDeDatos(T, L)
-    informe1=[]
-    informe2=[]
-    informe3=[]
-    L1= Paso1_convertirDF2Elementales(L, informe1)
-    L2 = Paso2_Atributos_extranos(L1, informe2)
-    L3 = Paso3_Dependencia_refundande(L2, informe3)
-    print "----------L1-----------"
-    imprimirL(L1)
-    print "----------L2-----------"
-    imprimirL(L2)
-    print "----------L3-----------"
-    imprimirL(L3)
-    print "----------INFOMES-----------"
-    imprimir(informe1)
-    imprimir(informe2)
-    imprimir(informe3)
-    
 '''
 Carga los datos de un archivo ejecuta el cierre 
 * Modificado 
@@ -282,6 +248,40 @@ def cargar_datos(atri,dep):
     #imprimir(informe2)
     #imprimir(informe3)
     return [L1,L2,L3,informe1,informe2,informe3]
+
+'''
+Carga los datos de un archivo ejecuta el cierre
+'''
+def cargar_datos2():
+    T=[]
+    L=[]
+    dirname = os.path.dirname(__file__)
+    filename = os.path.join(dirname, ruta, 'import.json')
+    with open(filename) as file:
+        resf = json.load(file)
+        T = resf["T"]
+        LO = resf["L"]
+    for l in LO:
+        L.append([l["X"], l["Y"]])
+    
+    validacionDeDatos(T, L)
+    informe1=[]
+    informe2=[]
+    informe3=[]
+    L1= Paso1_convertirDF2Elementales(L, informe1)
+    L2 = Paso2_Atributos_extranos(L1, informe2)
+    L3 = Paso3_Dependencia_refundande(L2, informe3)
+    print ("----------L1-----------")
+    imprimirL(L1)
+    print ("----------L2-----------")
+    imprimirL(L2)
+    print ("----------L3-----------")
+    imprimirL(L3)
+    print ("----------INFOMES-----------")
+    imprimir(informe1)
+    imprimir(informe2)
+    imprimir(informe3)
+
 '''
 Valida que los valores ingresados en la DF esten en los atributos definidos
 '''
@@ -300,7 +300,7 @@ def prueba():
     '''
     T = ["A","B","C","D","E","F"]
     L = [[["A"],["B","D"]], [["C"],["F"]],[["F"],["A"]],[["C", "D"],["A"]],[["A", "C"],["E"]] ]
-    '''
+    
     T = ["A","B","C","D","E","F"]
     L = [[["A", "B"],["C"]], 
      [["D"],["E", "F"]],
@@ -311,19 +311,31 @@ def prueba():
      [["A", "C", "D"],["B"]],
      [["C","E"],["A", "F"]]
      ]
+    '''
+    #T = ["A","B","C","D","E","F"]
+    L = [[["E"],["N", "S"]], 
+     [["N","L"],["E", "M", "D"]],
+     [["E","N"],["L", "C", "D"]],
+     [["C"],["S"]],
+     [["D"],["M"]],
+     [["M"],["D"]],
+     [["E","P","D"],["A", "E"]],
+     [["N","L","C", "P"],["A"]],
+     ]
+    
     informe1=[]
     informe2=[]
     informe3=[]    
     L1= Paso1_convertirDF2Elementales(L, informe1)
     L2 = Paso2_Atributos_extranos(L1, informe2)
     L3 = Paso3_Dependencia_refundande(L2, informe3)
-    print "----------L1-----------"
+    print ("----------L1-----------")
     imprimirL(L1)
-    print "----------L2-----------"
+    print ("----------L2-----------")
     imprimirL(L2)
-    print "----------L3-----------"
+    print ("----------L3-----------")
     imprimirL(L3)
-    print "----------INFOMES-----------"
+    print ("----------INFOMES-----------")
     imprimir(informe1)
     imprimir(informe2)
     imprimir(informe3)
