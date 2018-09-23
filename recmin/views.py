@@ -9,9 +9,10 @@ from django.http import HttpResponse
 import os
 import json
 from taller2 import cargar_datos
+from taller3 import calculaLlaves
 # Create your views here.
 def home(request):
-    return render(request, 'index.html', {'what':'RECUBRIMIENTO MINIMO'})
+    return render(request, 'index.html', {'what':'RECUBRIMIENTO MINIMO Y LLAVES CANDIDATAS'})
 
 def upload(request):
     if request.method == 'POST':
@@ -43,11 +44,19 @@ def minimun(request):
         a=str(x['atrib']).replace('u','').strip()
         d=str(x['dep']).replace('u','').strip()
         result = cargar_datos(a,d)
-        generar_json('* Primer paso: '+str(result[0])+'* Segundo paso: '+str(result[1])+'* Tercer paso:'+str(result[2]))
-        return render(request, 'resultados.html', {'info1': result[3],'info2': result[4],'info3': result[5]})
+        llave = calculaLlaves(a,d)
+        generar_json('* Informe primer paso:'+str(result[3])+'* Primer paso: '+str(result[0])+'* Informe segundo paso:'+str(result[4])+'* Segundo paso: '+str(result[1])+'* Informe tercer paso:'+str(result[0])+'* Tercer paso:'+str(result[2]))
+        generar_json_llaves('Z :'+str(llave[2])+'Z+ :'+str(llave[3])+'W :'+str(llave[4])+'V :'+str(llave[5]))
+        return render(request, 'resultados.html', {'info1': result[2],'info2': llave[0],'info3': llave[1]})
 
 def generar_json(data):
-    filePathNameWExt = 'up\cierre.txt'
+    filePathNameWExt = 'up\cierre.csv'
+    with open(filePathNameWExt, 'w') as fp:
+        fp.write(data)
+        fp.close()
+
+def generar_json_llaves(data):
+    filePathNameWExt = 'up\llaves.csv'
     with open(filePathNameWExt, 'w') as fp:
         fp.write(data)
         fp.close()
