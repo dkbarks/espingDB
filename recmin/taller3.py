@@ -9,7 +9,7 @@ import taller1
 import Queue
 from threading import Thread
 
-def algoritmo_rapido(T,L):
+def algoritmo_rapido(T,L,informe):
     unionY = set()
     T = set(T)
     #se hace la union de todos los Yi donde Xi->Yi pertenece a L
@@ -17,10 +17,12 @@ def algoritmo_rapido(T,L):
         unionY = unionY.union(l[1])
     #se calcula Z 
     Z = T.difference(unionY)
+    informe.append("* Z: "+ ",".join(Z))
     #calcula el cierre de Z
     cierreZ = taller1.cierreUnDescriptor(Z,L)
     #si el cierre de Z es igual a T, se tiene una llave única y se temina el algoritmo
     if cierreZ == T:
+        informe.append("Como el cierre de Z es igual a T, se dice que A es llave única.")
         print "llave única"
         return Z
     unionX = set()
@@ -29,8 +31,10 @@ def algoritmo_rapido(T,L):
         unionX = unionX.union(l[0])
     #se calcuka W
     W = T.difference(unionX)
+    informe.append("* W: "+ ",".join(W))
     #se calcula los posibles V
     V = sorted(T.difference(W.union(Z)))
+    informe.append("* V: "+ ",".join(V))
     
     print "--- Valores ---"
     print "Z =" , sorted(Z)
@@ -44,11 +48,22 @@ def algoritmo_rapido(T,L):
     for (v,i) in zip(V,range(len(V))):
         value = Z.union(v);        
         M1.append([i,value])
+    
+    informe.append("* Se incia a M1 con: ")    
+    informe.append([",".join(mm[1]) for mm in M1])
+    
     print "-M1--"
     taller1.imprimir(M1)
     
     ciclo(M1,M2,L,T)
 
+    informe.append("* Al final del ciclo 1:")    
+    informe.append("M1: ")    
+    informe.append([",".join(mm[1]) for mm in M1])
+    informe.append("M2: ")    
+    informe.append([",".join(mm[1]) for mm in M2])
+    
+    vciclo = 2
     while len(M1) > 0:
         #adiciona los emlementos a M1
         newM1 = []
@@ -61,7 +76,14 @@ def algoritmo_rapido(T,L):
         M1 = newM1
         if len(M1) > 0:
             ciclo(M1,M2,L,T)
-    return [sorted(Z),sorted(cierreZ),sorted(W),sorted(V),M1,M2]
+        informe.append(" ")    
+        informe.append("* Al final del ciclo "+ str(vciclo)+":")    
+        informe.append("M1: ")    
+        informe.append([",".join(mm[1]) for mm in M1])
+        informe.append("M2: ")    
+        informe.append([",".join(mm) for mm in M2])
+        vciclo = vciclo + 1
+    return [sorted(Z),sorted(cierreZ),sorted(W),sorted(V),M1,M2,informe]
     
 #revisa si el valor es un subconjunto de lo que se va a analizar
 def yaExitsteEnM2(M2, value):
@@ -106,11 +128,12 @@ def calculaLlaves(T, L):
     L3 = taller2_1.calculaCierreMinimo(a,d)
     print "-Cierre Mímimo---"
     taller1.imprimirL(L3)
-    M = algoritmo_rapido(a,L3)
+    informe = []
+    M = algoritmo_rapido(a,L3,informe)
     M2 = M[5]
     print "--M2---"
     taller1.imprimir(M2)
-    return [L3, M[5],M[0],M[1],M[2],M[3],M[4]]
+    return [L3, M[5],M[0],M[1],M[2],M[3],M[4], M[5]]
 if __name__ == "__main__":    
 
     T = ["A","E","N","S","M","D","L","C", "P"]
