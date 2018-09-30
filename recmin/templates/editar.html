@@ -1,6 +1,7 @@
 <html>
 <head>
   <title>ESPING - BD</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <style>
     h1 {
       font-size: 2em;
@@ -15,6 +16,16 @@
       margin: auto;
     }
   </style>
+<script>
+$(document).ready(function() {
+  if(($('#dep').val().trim()) == '' || ($('#atrib').val().trim()) == ''){
+      $('#calc').hide();
+      }
+});
+function showButton() {
+    $('#calc').show();          
+}
+</script>
 </head>
 
 <body>
@@ -34,17 +45,18 @@
           <br />
           <br />
           DEPENDENCIAS
-          <textarea rows="15" cols="150" id="dep" name="dep">
+          <textarea rows="15" cols="150" id="dep" name="dep" onblur="showButton()">
                 {{ dependencias }}           
           </textarea>
           <br />
           <br />
-          <input type="submit" value="CALCULAR" />
+          <input type="submit" value="CALCULAR" id="calc" name="calc"/>
         </form>
         <a href='/recmin'> Inicio </a>
       </td>
     </tr>
   </table>
+  
 
 </body>
 
