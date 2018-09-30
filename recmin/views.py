@@ -52,7 +52,19 @@ def minimun(request):
         llave = calculaLlaves(a,d)
         generar_json('* Informe primer paso:'+str(result[3])+'* Primer paso: '+str(result[0])+'* Informe segundo paso:'+str(result[4])+'* Segundo paso: '+str(result[1])+'* Informe tercer paso:'+str(result[0])+'* Tercer paso:'+str(result[2]))
         generar_json_llaves('Z :'+str(llave[2])+'Z+ :'+str(llave[3])+'W :'+str(llave[4])+'V :'+str(llave[5]))
-        return render(request, 'resultados.html', {'info1': result[2],'info2': llave[0],'info3': llave[1]})
+        return render(request, 'resultados.html', {'info1': formato_dependencias(result[2]),'info2': llave[0],'info3': formato_algo(llave[1])})
+
+def formato_dependencias(L):
+    val = ""
+    for i in L:
+        val = val + ' *' + ','.join(i[0]) + " -> "+ ''.join(i[1])+'\r\n'
+    return val
+
+def formato_algo(ii):
+    val = ""
+    for i in ii:
+        val = val +" *" + ','.join(i)
+    return val
 
 def generar_json(data):
     filePathNameWExt = 'up\cierre.csv'
