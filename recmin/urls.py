@@ -10,6 +10,7 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.home, name="home"),
+    url(r'^index/', views.index, name="index"),
     url(r'^upload/', views.upload, name="upload"),
     url(r'^minimun/', views.minimun, name="minimun"),
 ]

@@ -12,6 +12,9 @@ from taller2 import cargar_datos
 from taller3 import calculaLlaves
 # Create your views here.
 def home(request):
+    return render(request, 'home.html', {'what':'ESPECIALIZACION INGENIERIA DE SOFTWARE', 'db':'BASES DE DATOS'})
+
+def index(request):
     return render(request, 'index.html', {'what':'RECUBRIMIENTO MINIMO Y LLAVES CANDIDATAS'})
 
 def upload(request):
@@ -21,6 +24,8 @@ def upload(request):
         atributos = str(data["T"]).replace('u','')
         dependencias = str(data["L"]).replace('u','')
         return render(request, 'editar.html', {'atributos': atributos,'dependencias':dependencias})
+    else:
+        return render(request, 'editar.html', {'atributos': '','dependencias':''})
 
     return HttpResponse("Failed")
 
